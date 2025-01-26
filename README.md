@@ -2,8 +2,8 @@
 
 ## Description du Projet
 
-Le projet consiste à implémenter et optimiser des algorithmes de recherche de chemins sur des données OpenStreetMap.
-L'objectif principal que j'ai choisi est de comparer les performances de deux approches :
+Notre projet consiste à implémenter et optimiser des algorithmes de recherche de chemins sur des données OpenStreetMap.
+L'objectif principal que nous avons choisi est de comparer les performances de deux approches :
 
 - L'algorithme de Dijkstra
 - L'algorithme A*
@@ -13,15 +13,15 @@ Les données sont fournies sous forme de fichiers CSV contenant :
 - Les nœuds (points) avec leurs coordonnées géographiques
 - Les chemins (ways) reliant ces nœuds avec leurs distances
 
-*A noté que les données présente toujouts des anomalies, comme des points qui ne sont pas reliés à un chemin, ou des chemins qui ne sont pas reliés à un point. Ou même des points qui apparaissent plusieurs fois dans le fichier.*
+*À noter que les données présentent toujours des anomalies, comme des points qui ne sont pas reliés à un chemin, ou des chemins qui ne sont pas reliés à un point. Ou même des points qui apparaissent plusieurs fois dans le fichier.*
 
 ## Problèmes Identifiés
 
 ### Temps de chargement des données
 
-Il ne s'agit du problèmatique concernant les algorithmes eux même mais il semble tout de même nécessaire de rechercher à optimiser ce processus car il reste trés couteux et fais partie des processus dont nous avons besoin pour trouver un chemin.
+Il ne s'agit pas de la problématique concernant les algorithmes eux-mêmes mais il nous semble tout de même nécessaire de chercher à optimiser ce processus car il reste très coûteux et fait partie des processus dont nous avons besoin pour trouver un chemin.
 
-L'implémentatin de base que j'avais mis en oeuvre que l'on retrouve dans le fichier `graph_csv.py` utilise la librairie `csv` qui semble être une des plus lente pour lire nos fichiers CSV.
+L'implémentation de base que nous avions mise en œuvre que l'on retrouve dans le fichier `graph_csv.py` utilise la librairie `csv` qui semble être une des plus lentes pour lire nos fichiers CSV.
 
 ```python
 with open(nodes_file, "r") as f:
@@ -35,7 +35,7 @@ with open(ways_file, "r") as f:
         self.add_edge(row["node_from"], row["node_to"], row["distance_km"])
 ```
 
-J'ai donc effectué des recherche et constater que `Pandas` était une librairie plus performante pour lire nos fichiers CSV. J'ai donc implémenté une version utilisant `Pandas` dans le fichier `graph_panda.py`.
+Nous avons donc effectué des recherches et constaté que `Pandas` était une librairie plus performante pour lire nos fichiers CSV. Nous avons donc implémenté une version utilisant `Pandas` dans le fichier `graph_panda.py`.
 
 ```python
 df_nodes = pd.read_csv(nodes_file, 
@@ -47,8 +47,8 @@ df_ways = pd.read_csv(ways_file,
                             dtype={"node_from": str, "node_to": str, "distance_km": float})
 ```
 
-Le temps d'éxécution est bien meilleur mais il me semble toujours possible de l'optimiser.
-Après d'autre recherche, j'ai découvert que `Polars` était une librairie encore plus performante pour lire nos fichiers CSV. Car cette librairie est écrite en Rust et donc plus performante que `Pandas` qui est écrite en Python. On retrouve cette version dans le fichier `graph_polar.py`.
+Le temps d'exécution est bien meilleur mais il nous semble toujours possible de l'optimiser.
+Après d'autres recherches, nous avons découvert que `Polars` était une librairie encore plus performante pour lire nos fichiers CSV. Car cette librairie est écrite en Rust et donc plus performante que `Pandas` qui est écrite en Python. On retrouve cette version dans le fichier `graph_polar.py`.
 
 ```python
 df_nodes = pl.read_csv(nodes_file, 
@@ -60,18 +60,18 @@ df_ways = pl.read_csv(ways_file,
                             schema_overrides={"node_from": str, "node_to": str, "distance_km": float})
 ```
 
-En effectuant un benchmark de ces différente version voici les réusltat obrtenu :
+En effectuant un benchmark de ces différentes versions, voici les résultats obtenus :
 
 ![benchmark](./img/load_benchmark_results.png)
 
-On peut donc constater que `Pandas` est bien plus performante que `CSV` mais que `Polars` apporte encore une légère amélioration. Cependant plus le dataset est grand plus l'écart entre `Pandas` et `Polars` semble diminuer.
-Nous utilisertont donc pour la suite du projet `Polars` pour la lecture des fichiers CSV qui est dans notre cas le plus performant.
+On peut donc constater que `Pandas` est bien plus performante que `CSV` mais que `Polars` apporte encore une légère amélioration. Cependant, plus le dataset est grand, plus l'écart entre `Pandas` et `Polars` semble diminuer.
+Nous utiliserons donc pour la suite du projet `Polars` pour la lecture des fichiers CSV qui est dans notre cas le plus performant.
 
 *Le fichier python `bench_load.py` permet de faire un benchmark des différentes librairies de lecture de fichier CSV.*
 
 ### Algorithme de recherche
 
-L'algorithme de recherche que j'ai implémenté est un algorithme de recherche de chemin qui utilise l'algorithme de Dijkstra. Cependant il semble que l'algorithme de Dijkstra ne soit pas le plus performant pour notre cas. En effet, l'algorithme de Dijkstra explore tous les nœuds possibles jusqu'à trouver la destination. Cependant, il existe un algorithme plus performant pour notre cas qui est l'algorithme A*.
+L'algorithme de recherche que nous avons implémenté est un algorithme de recherche de chemin qui utilise l'algorithme de Dijkstra. Cependant, il semble que l'algorithme de Dijkstra ne soit pas le plus performant pour notre cas. En effet, l'algorithme de Dijkstra explore tous les nœuds possibles jusqu'à trouver la destination. Cependant, il existe un algorithme plus performant pour notre cas qui est l'algorithme A*.
 
 #### Complexité de Calcul
 
@@ -109,7 +109,7 @@ L'algorithme de recherche que j'ai implémenté est un algorithme de recherche d
 
 #### Performance Temporelle
 
-Si dessous le benchmark des différent temps de recherche des chemins entre différents points de départ et d'arrivée.
+Si dessous le benchmark des différents temps de recherche des chemins entre différents points de départ et d'arrivée.
 
 De `Saint-Pierre-de-Rivière` à `Las Prados` avec le jeu de données `Serres-sur-Arget` :
 
@@ -130,13 +130,13 @@ De `Saint-Pierre-de-Rivière` à `Saint-Pierre-de-Rivière` avec le jeu de donn�
 On constate donc que l'algorithme A* est bien plus performant que l'algorithme de Dijkstra.
 Mais nous remarquons aussi une anomalie dans le résultat suivant :
 
-*(Ce chemin n'est possible que sur le jeu de données `Serres-sur-Arget` a cause d'un problème de données dans le jeu de données `Ariège`)*
+*(Ce chemin n'est possible que sur le jeu de données `Serres-sur-Arget` à cause d'un problème de données dans le jeu de données `Ariège`)*
 
 ![benchmark](./img/search_benchmark_Serres_-_Saint-Pierre-de-Rivière_to_Cabane_Coumauzil_-_barguillere.png)
 
-On constate alors ici que A* est beaucoup moins performant que Dijkstra et il m'a été impossible de trouver la cause de cette anomalie. Je penche donc pour une erreur dans les données.
+On constate alors ici que A* est beaucoup moins performant que Dijkstra et il nous a été impossible de trouver la cause de cette anomalie. Nous penchons donc pour une erreur dans les données.
 
-*Ces benchmarks ont été réalisé avec le fichier `bench_search.py`.*
+*Ces benchmarks ont été réalisés avec le fichier `bench_search.py`.*
 
 #### Complexité
 
