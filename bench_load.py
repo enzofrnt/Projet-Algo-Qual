@@ -1,8 +1,9 @@
 import time
 import matplotlib.pyplot as plt
-from base import Graph as BaseGraph
-from panda import Graph as PandasGraph
-from polar import Graph as PolarGraph
+import os
+from graph_csv import GraphCSV
+from graph_panda import GraphPanda
+from graph_polar import GraphPolar
 
 def benchmark_implementation(graph_class, nodes_file, ways_file, name):
     start_time = time.time()
@@ -13,9 +14,9 @@ def benchmark_implementation(graph_class, nodes_file, ways_file, name):
 
 def run_benchmarks():
     implementations = [
-        (BaseGraph, "CSV (base)"),
-        (PandasGraph, "Pandas"),
-        (PolarGraph, "Polars"),
+        (GraphCSV, "CSV (base)"),
+        (GraphPanda, "Pandas"),
+        (GraphPolar, "Polars"),
     ]
     
     datasets = [
@@ -82,7 +83,10 @@ def plot_results(results):
     # Ajuster les marges pour accommoder le texte
     plt.tight_layout()
     plt.subplots_adjust(bottom=0.25)  # Augmenter l'espace en bas
-    plt.savefig('./img/benchmark_results.png')
+    #Remove the file if it exists
+    if os.path.exists('./img/load_benchmark_results.png'):
+        os.remove('./img/load_benchmark_results.png')
+    plt.savefig('./img/load_benchmark_results.png')
     plt.close()
 
 if __name__ == "__main__":
