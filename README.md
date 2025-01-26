@@ -134,7 +134,7 @@ Mais nous remarquons aussi une anomalie dans le résultat suivant :
 
 ![benchmark](./img/search_benchmark_Serres_-_Saint-Pierre-de-Rivière_to_Cabane_Coumauzil_-_barguillere.png)
 
-On constate alors ici que A* est beaucoup moins performant que Dijkstra et il nous a été impossible de trouver la cause de cette anomalie. Nous penchons donc pour une erreur dans les données.
+On constate ici qu’A* est nettement moins performant que Dijkstra, sans que nous ayons pu identifier la cause de cette anomalie. Nous supposons qu’il pourrait s’agir d’une erreur dans les données. L’heuristique utilisée pourrait également en être la cause, mais nous n’avons pas eu le temps ni les ressources nécessaires pour en analyser précisément l’origine. Toutefois, étant donné que les données semblent contenir des incohérences, nous avons choisi de ne pas y consacrer davantage de temps, estimant que le problème pourrait provenir de ces dernières.
 
 *Ces benchmarks ont été réalisés avec le fichier `bench_search.py`.*
 
