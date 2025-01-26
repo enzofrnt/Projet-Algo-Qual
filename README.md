@@ -136,32 +136,48 @@ Mais nous remarquons aussi une anomalie dans le résultat suivant :
 
 On constate alors ici que A* est beaucoup moins performant que Dijkstra et il m'a été impossible de trouver la cause de cette anomalie. Je penche donc pour une erreur dans les données.
 
+*Ces benchmarks ont été réalisé avec le fichier `bench_search.py`.*
+
 #### Complexité
 
 1. **Complexité Temporelle** :
 
    - Dijkstra : O(|E| + |V| log |V|)
-   - A* : O(|E|) dans le meilleur cas
+   - A* : O(|E| + |V| log |V|) dans le pire cas, mais généralement plus efficace en pratique grâce à l'heuristique qui guide la recherche
+
 2. **Complexité Spatiale** :
 
    - O(|V|) pour les deux algorithmes
-   - Structures additionnelles pour A* : négligeable
+   - Structures additionnelles pour A* : O(|V|) pour la file de priorité et les distances estimées
 
-### 4.3 Analyse des Résultats
+### Analyse des Résultats
 
-1. **Avantages de A*** :
+1. **Performance** :
 
-   - 30-45% plus rapide que Dijkstra
-   - Particulièrement efficace sur les grands ensembles
-   - Même qualité de résultat (chemins optimaux)
-2. **Limitations** :
+   - A* montre une amélioration significative des temps de calcul dans la plupart des cas
+   - Les tests empiriques confirment un gain de performance de 30-45% par rapport à Dijkstra
+   - L'efficacité est particulièrement notable sur les grands jeux de données
 
-   - Dépendance à la qualité de l'heuristique
-   - Surcoût mémoire léger
-   - Performance variable selon la topologie du graphe
+2. **Qualité des Solutions** :
 
-## 5. Conclusion
+   - Les deux algorithmes garantissent des chemins optimaux
+   - A* explore généralement moins de nœuds pour atteindre la solution
+   - La qualité de l'heuristique influence directement les performances
 
-L'implémentation de A* apporte une amélioration significative par rapport à Dijkstra, particulièrement sur les grands ensembles de données. Les optimisations de structure de données et l'utilisation d'une heuristique efficace permettent d'obtenir des performances satisfaisantes tout en garantissant l'optimalité des chemins trouvés.
+3. **Limitations et Points d'Attention** :
 
-Les perspectives d'amélioration incluent le prétraitement des données et la parallélisation, qui pourraient encore améliorer les performances sur les très grands ensembles de données.
+   - L'efficacité de A* dépend fortement de la qualité de l'heuristique
+   - Certains cas particuliers peuvent montrer des performances inférieures à Dijkstra
+   - La topologie du graphe influence significativement les performances
+
+## Conclusion et Perspectives
+
+Notre implémentation démontre l'intérêt d'utiliser A* pour la recherche de plus courts chemins dans un contexte géographique. Les résultats expérimentaux valident les choix d'implémentation et les optimisations apportées.
+
+Les améliorations futures pourraient inclure :
+- L'optimisation de l'heuristique pour mieux prendre en compte le relief
+- L'implémentation d'un prétraitement des données pour accélérer les calculs
+- L'exploration de variantes bidirectionnelles de l'algorithme
+- La parallélisation des calculs pour les très grands graphes
+
+Cette étude confirme l'efficacité de A* comme alternative à Dijkstra pour les problèmes de routage, tout en identifiant ses limites et les pistes d'amélioration possibles.
