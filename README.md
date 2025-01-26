@@ -21,7 +21,7 @@ Les données sont fournies sous forme de fichiers CSV contenant :
 
 Il ne s'agit du problèmatique concernant les algorithmes eux même mais il semble tout de même nécessaire de rechercher à optimiser ce processus car il reste trés couteux et fais partie des processus dont nous avons besoin pour trouver un chemin.
 
-L'implémentatin de base que j'avais mis en oeuvre que l'on retrouve dans le fichier `base.py` utilise la librairie `csv` qui semble être une des plus lente pour lire nos fichiers CSV.
+L'implémentatin de base que j'avais mis en oeuvre que l'on retrouve dans le fichier `graph_csv.py` utilise la librairie `csv` qui semble être une des plus lente pour lire nos fichiers CSV.
 
 ```python
 with open(nodes_file, "r") as f:
@@ -35,7 +35,7 @@ with open(ways_file, "r") as f:
         self.add_edge(row["node_from"], row["node_to"], row["distance_km"])
 ```
 
-J'ai donc effectué des recherche et constater que `Pandas` était une librairie plus performante pour lire nos fichiers CSV. J'ai donc implémenté une version utilisant `Pandas` dans le fichier `pandas.py`:
+J'ai donc effectué des recherche et constater que `Pandas` était une librairie plus performante pour lire nos fichiers CSV. J'ai donc implémenté une version utilisant `Pandas` dans le fichier `graph_panda.py`.
 
 ```python
 df_nodes = pd.read_csv(nodes_file, 
@@ -48,7 +48,7 @@ df_ways = pd.read_csv(ways_file,
 ```
 
 Le temps d'éxécution est bien meilleur mais il me semble toujours possible de l'optimiser.
-Après d'autre recherche, j'ai découvert que `Polars` était une librairie encore plus performante pour lire nos fichiers CSV. Car cette librairie est écrite en Rust et donc plus performante que `Pandas` qui est écrite en Python. On retrouve cette version dans le fichier `polar.py`.
+Après d'autre recherche, j'ai découvert que `Polars` était une librairie encore plus performante pour lire nos fichiers CSV. Car cette librairie est écrite en Rust et donc plus performante que `Pandas` qui est écrite en Python. On retrouve cette version dans le fichier `graph_polar.py`.
 
 ```python
 df_nodes = pl.read_csv(nodes_file, 
@@ -62,12 +62,12 @@ df_ways = pl.read_csv(ways_file,
 
 En effectuant un benchmark de ces différente version voici les réusltat obrtenu :
 
-![benchmark](./img/benchmark_results.png)
+![benchmark](./img/load_benchmark_results.png)
 
 On peut donc constater que `Pandas` est bien plus performante que `CSV` mais que `Polars` apporte encore une légère amélioration. Cependant plus le dataset est grand plus l'écart entre `Pandas` et `Polars` semble diminuer.
 Nous utilisertont donc pour la suite du projet `Polars` pour la lecture des fichiers CSV qui est dans notre cas le plus performant.
 
-Le fichier python `csv_bench.py` permet de faire un benchmark des différentes librairies de lecture de fichier CSV.
+*Le fichier python `bench_load.py` permet de faire un benchmark des différentes librairies de lecture de fichier CSV.*
 
 ### Algorithme de recherche
 
@@ -77,12 +77,11 @@ L'algorithme de recherche que j'ai implémenté est un algorithme de recherche d
 
 - Dijkstra explore tous les nœuds possibles jusqu'à trouver la destination
 - Calculs redondants de distances à vol d'oiseau
-- Chargement initial des données coûteux pour de grands ensembles
+- Chargement initial des données coûteux pour de grands ensembles (Même après optimisation avec `Polars`)
 
 #### Structure de Données
 
 - Utilisation de dictionnaires Python pour stocker les nœuds et les arêtes
-- Gestion de la mémoire pour les grands ensembles de données
 - Conversion répétée des types de données (str/float)
 
 #### Optimisations Proposées
@@ -98,34 +97,44 @@ L'algorithme de recherche que j'ai implémenté est un algorithme de recherche d
    - Cache des distances précalculées
    - Index des noms pour une recherche rapide
 
-#### Optimisations Futures Suggérées
-
-1. **Prétraitement** :
-
-   - Précalcul des distances fréquemment utilisées
-   - Mise en cache des chemins populaires
-   - Partitionnement des données pour les grands ensembles
-2. **Parallélisation** :
-
-   - Recherche parallèle pour différentes destinations
-   - Chargement parallèle des données
-
 ## Benchmark et Analyse
 
 ### Environnement de Test
 
 - Python 3.12.6
-- Tests effectués sur un MacBook Pro M4 Pro 48 Go de RAM - 4 E-Cores & 10 P-Cores
-- Jeux de données : Serres-sur-Arget et Ariège
+- Tests effectués sur un `MacBook Pro M4 Pro 48 Go de RAM - 4 E-Cores & 10 P-Cores`
+- Jeux de données : `Serres-sur-Arget` et `Ariège`
 
-### 4.2 Résultats Comparatifs
+### Résultats Comparatifs
 
 #### Performance Temporelle
 
-| Algorithme | Serres-sur-Arget | Ariège |
-| ---------- | ---------------- | ------- |
-| Dijkstra   | ~2.5ms           | ~15ms   |
-| A*         | ~1.8ms           | ~8ms    |
+Si dessous le benchmark des différent temps de recherche des chemins entre différents points de départ et d'arrivée.
+
+De `Saint-Pierre-de-Rivière` à `Las Prados` avec le jeu de données `Serres-sur-Arget` :
+
+![benchmark](./img/search_benchmark_Serres_-_Saint-Pierre-de-Rivière_to_Las_Prados.png)
+
+De `Saint-Pierre-de-Rivière` à `Las Prados` avec le jeu de données `Ariège` :
+
+![benchmark](./img/search_benchmark_Ariège_-_Saint-Pierre-de-Rivière_to_Las_Prados.png)
+
+De `Saint-Pierre-de-Rivière` à `Saint-Pierre-de-Rivière` avec le jeu de données `Serres-sur-Arget` :
+
+![benchmark](./img/search_benchmark_Serres_-_Saint-Pierre-de-Rivière_to_Saint-Pierre-de-Rivière.png)
+
+De `Saint-Pierre-de-Rivière` à `Saint-Pierre-de-Rivière` avec le jeu de données `Ariège` :
+
+![benchmark](./img/search_benchmark_Ariège_-_Saint-Pierre-de-Rivière_to_Saint-Pierre-de-Rivière.png)
+
+On constate donc que l'algorithme A* est bien plus performant que l'algorithme de Dijkstra.
+Mais nous remarquons aussi une anomalie dans le résultat suivant :
+
+*(Ce chemin n'est possible que sur le jeu de données `Serres-sur-Arget` a cause d'un problème de données dans le jeu de données `Ariège`)*
+
+![benchmark](./img/search_benchmark_Serres_-_Saint-Pierre-de-Rivière_to_Cabane_Coumauzil_-_barguillere.png)
+
+On constate alors ici que A* est beaucoup moins performant que Dijkstra et il m'a été impossible de trouver la cause de cette anomalie. Je penche donc pour une erreur dans les données.
 
 #### Complexité
 
